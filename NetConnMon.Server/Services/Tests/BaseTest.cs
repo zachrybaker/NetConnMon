@@ -92,7 +92,7 @@ namespace NetConnMon.Server.Services.Tests
                     watch.Reset();
                 }
                 if (test.SaveInterval > 0 && executionCount % test.SaveInterval == 0)
-                    await SaveTheTest();
+                    await SaveTheTest(serviceToken);
             }
 
             test.SetStopping(false);
@@ -138,12 +138,12 @@ namespace NetConnMon.Server.Services.Tests
                 }
                 else if (state == TestingState.SaveThenRun)
                 {
-                    await SaveTheTest();
+                    await SaveTheTest(serviceToken);
                     SetTestingState(serviceToken.IsCancellationRequested ? TestingState.Stopped : TestingState.RunningTest);
                 }
                 else if (state == TestingState.SaveThenStop)
                 {
-                    await SaveTheTest();
+                    await SaveTheTest(serviceToken);
                     SetTestingState(TestingState.Stopped);
                 }
                 else if (state == TestingState.Stop)
@@ -170,7 +170,7 @@ namespace NetConnMon.Server.Services.Tests
                     case TestingState.SaveThenRun:
                     case TestingState.SaveThenStop:
                     case TestingState.RunningTest:
-                        await SaveTheTest();
+                        await SaveTheTest(serviceToken);
                         SetTestingState(TestingState.Stopped);
                         break;
                 }
@@ -234,7 +234,11 @@ namespace NetConnMon.Server.Services.Tests
             return testDefinition;
         }
 
-        private async Task SaveTheTest()
-            => await mediator.Send(new SaveTestStatus(test));
+        private async Task SaveTheTest(CancellationToken serviceToken)
+        {
+            await mediator.Send(new SaveTestStatus(test));
+            if (!test.Disabled && (test.CanConnect ?? false))
+                await emailer.RetrySendingEmailAsync(serviceToken);
+        }
     }
 }

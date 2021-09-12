@@ -12,7 +12,7 @@ using NetConnMon.Server.API.Notifications;
 using NetConnMon.Server.API.Requests;
 using System.Linq;
 using MailKit.Net.Smtp;
-using Hangfire;
+using System.Collections.Concurrent;
 
 namespace NetConnMon.Server.Services
 {
@@ -22,6 +22,8 @@ namespace NetConnMon.Server.Services
         private readonly ILogger<Emailer> logger;
         private object settingsLock = new();
         IMediator mediator;
+
+        static ConcurrentQueue<MimeMessage> UnsentMessags = new ConcurrentQueue<MimeMessage>();
         public Emailer(IOptions<EmailSettings> options, ILogger<Emailer> logger, IMediator mediator)
         {
             this.logger = logger;
@@ -67,18 +69,20 @@ namespace NetConnMon.Server.Services
             return Task.CompletedTask;
         }
 
-        //public Task<string> SendTestEmail( CancellationToken cancellationToken)
-        //     => SendEmailAsync(
-        //        MakeMimeMessage("Test Email (NetConnMon)", "This is your test email (NetConnMon)"),
-        //        cancellationToken);
-        public Task<string> SendTestEmail(CancellationToken cancellationToken)
+        public async Task RetrySendingEmailAsync(CancellationToken cancellationToken)
         {
-            var msg = MakeMimeMessage("Test Email (NetConnMon)", "This is your test email (NetConnMon)");
-            BackgroundJob.Enqueue(() => SendEmailAsync(msg, cancellationToken));
-            return Task.FromResult<string>(null);
+            if( UnsentMessags.TryDequeue(out var message))
+            {
+                await SendEmailAsync(message, cancellationToken);
+            }
         }
 
-        private MimeMessage MakeMimeMessage(string subject, string message)
+        public Task<string> SendTestEmail(CancellationToken cancellationToken)
+            => SendEmailAsync(
+                MakeMimeMessage("Test Email (NetConnMon)", "This is your test email (NetConnMon)"), 
+                CancellationToken.None);
+        
+        protected MimeMessage MakeMimeMessage(string subject, string message)
         {
             var settings = GetSettings();
             if (settings?.IsNotSet ?? true)
@@ -118,7 +122,7 @@ namespace NetConnMon.Server.Services
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<string> SendEmailAsync(MimeMessage message, CancellationToken cancellationToken)
+        public async Task<string> SendEmailAsync(MimeMessage message, CancellationToken cancellationToken )
         {
             if (message == null)
                 return "Can't send an email when email settings are not set!";
@@ -127,7 +131,7 @@ namespace NetConnMon.Server.Services
             try
             {
                 var settings = GetSettings();
-                using (client = new SmtpClient())
+                using (client = new SmtpClient()) // wonder if we can just instantiate this at the constructor and leave it around.
                 {
                     if (cancellationToken.IsCancellationRequested)
                         return null;
@@ -145,6 +149,8 @@ namespace NetConnMon.Server.Services
 
                     if (!cancellationToken.IsCancellationRequested)
                     logger.LogDebug("Sent email");
+
+                    await RetrySendingEmailAsync(cancellationToken);
                     return null;
                 }
             }
@@ -152,17 +158,18 @@ namespace NetConnMon.Server.Services
             {
                 var error = $"Failure sending email: {e.Message}";
                 logger.LogError($"{error}, {e.StackTrace}");
+                // TODO: retry limitations (count, cool-off period)
+                UnsentMessags.Enqueue(message);
                 return error;
             }
         }
-
         private void SendEmailWithAction(MimeMessage message, Action completionCallback, CancellationToken cancellationToken)
         {
-            //Task.Run(async () => {
-            BackgroundJob.Enqueue(() => SendEmailAsync(message, cancellationToken));
-            //}).FireAndForget();
+            Task.Run(async () => {
+               await SendEmailAsync(message, cancellationToken);
+            }).FireAndForget();
             
-            completionCallback.Invoke();
+            completionCallback?.Invoke();
         }
     }
 }

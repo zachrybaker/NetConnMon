@@ -11,5 +11,6 @@ namespace NetConnMon.Server.Services
         Task<string> SendTestEmail( CancellationToken cancellationToken);
         void SendEmailStatus(TestDefinition test, string message, Action completionCallback, CancellationToken cancellationToken);
         Task<string> SendEmailAsync(MimeMessage message, CancellationToken cancellationToken);
+        Task RetrySendingEmailAsync(CancellationToken cancellationToken);
     }
 }

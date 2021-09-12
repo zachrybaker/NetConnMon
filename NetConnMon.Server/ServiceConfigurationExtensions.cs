@@ -9,8 +9,6 @@ using NetConnMon.Persistence;
 using NetConnMon.Server.API._Internal.RequestHandlers;
 using NetConnMon.Server.API.Requests;
 using NetConnMon.Server.Services;
-using Hangfire;
-using Hangfire.MemoryStorage;
 
 namespace NetConnMon.Server
 {
@@ -29,15 +27,6 @@ namespace NetConnMon.Server
             //services.AddScoped(typeof(IPipelineBehavior<,>), typeof(GenericPipelineBehavior<,>));
             //services.AddScoped(typeof(IRequestPreProcessor<>), typeof(GenericRequestPreProcessor<>));
             //services.AddScoped(typeof(IRequestPostProcessor<,>), typeof(GenericRequestPostProcessor<,>));
-
-            // retry for the emails, since the connection is possibly down when the email is attempted
-            services.AddHangfire(config =>
-            {
-                config.UseMemoryStorage();
-            });
-
-            // Add the processing server as IHostedService
-            services.AddHangfireServer();
 
             return services;
         }

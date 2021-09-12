@@ -12,9 +12,8 @@ using NetConnMon.Areas.Identity;
 using MudBlazor.Services;
 using Microsoft.AspNetCore.Identity;
 //using NetConnMon.Api; // coming soon
-using NetConnMon.Server; // going soon
+using NetConnMon.Server; // going soon (from here anyway)
 using MediatR;
-using Hangfire;
 // TODO: move identity-related features to mudblazor UI
 // TODO: Add authentication by putthing it in the root layout
 
@@ -71,8 +70,6 @@ namespace NetConnMon
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseHangfireDashboard(); // disable once you have things sorted.
 
             app.UseEndpoints(endpoints =>
             {
