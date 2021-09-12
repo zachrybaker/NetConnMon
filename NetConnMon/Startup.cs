@@ -16,7 +16,9 @@ using NetConnMon.Server; // going soon (from here anyway)
 using MediatR;
 // TODO: move identity-related features to mudblazor UI
 // TODO: Add authentication by putthing it in the root layout
-
+// TODO:? WASM, with API by swaping use of server API on this side (_Imports.razor) with our own here,
+//    with the requests/commands moved to domain project (for reuse by both apps)
+//    and the client-side handlers implemented via mediator with [refit](https://jonhilton.net/blazor-refit/)
 
 namespace NetConnMon
 {
@@ -30,7 +32,7 @@ namespace NetConnMon
         {
             IdentityBuilder = services
                 .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true);
-
+         
             services.ConfigureNetConnMonServer(Configuration, IdentityBuilder);
 
 
@@ -45,7 +47,6 @@ namespace NetConnMon
             var assembly = AppDomain.CurrentDomain.Load("NetConnMon.Server");
             var efAssembly = AppDomain.CurrentDomain.Load("NetConnMon.Persistence");
             services.AddMediatR(assembly, efAssembly);
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,7 +63,7 @@ namespace NetConnMon
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

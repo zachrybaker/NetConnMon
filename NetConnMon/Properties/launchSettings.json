@@ -30,7 +30,8 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true,
-      "useSSL": true
+      "useSSL": true,
+      "DockerfileRunArguments": "--name netconnmon -v netconnmon-db:/app/netconnmon-db"
     }
   }
 }

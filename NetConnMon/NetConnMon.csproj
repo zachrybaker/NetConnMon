@@ -4,6 +4,14 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>aspnet-NetConnMon-F3623C28-E274-4E6B-B6E1-7219CA819AE3</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <!-- In CI/CD scenarios, you might need to change the context. By default, Visual Studio uses the
+         folder above the Dockerfile. The path is relative to the Dockerfile, so here the context is
+         set to the same folder as the Dockerfile. -->
+    <!--<DockerfileContext>.</DockerfileContext>-->
+    <!-- Set `docker run` arguments to mount a volume -->
+    <DockerfileRunArguments>-v "netconnmon-db:/app/netconnmon-db"</DockerfileRunArguments>
+    <!-- Set `docker build` arguments to add a custom tag -->
+
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'NetConnMon' " />
@@ -22,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="app.db" />
     <None Remove="Blazored.FluentValidation" />
     <None Remove="Microsoft.EntityFrameworkCore.Design" />
     <None Remove="Components\" />
@@ -61,7 +70,11 @@
     <Compile Remove="Components\RazorTagHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="Shared\Index.cshtml" />
     <Content Remove="Components\Form\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
