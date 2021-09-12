@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Services\" />
+    <None Remove="Microsoft.Extensions.Logging" />
+    <None Remove="Microsoft.Extensions.Hosting" />
+    <None Remove="MailKit" />
+    <None Remove="NETCore.MailKit" />
+    <None Remove="DataAccess\" />
+    <None Remove="MediatR" />
+    <None Remove="MediatR.Extensions.Microsoft.DependencyInjection" />
+    <None Remove="API\" />
+    <None Remove="API\Requests\" />
+    <None Remove="API\Commands\" />
+    <None Remove="API\Internal\" />
+    <None Remove="API\Internal\CommandHandlers\" />
+    <None Remove="API\Internal\RequestHandlers\" />
+    <None Remove="DataAccess\.DS_Store" />
+    <None Remove="API\Notifications\" />
+    <None Remove="Scrutor" />
+    <None Remove="Services\Tests\" />
+    <None Remove="Hangfire" />
+    <None Remove="Hangfire.MemoryStorage" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\**\" />
+    <Folder Include="DataAccess\**\" />
+    <Folder Include="API\" />
+    <Folder Include="API\Requests\" />
+    <Folder Include="API\Commands\" />
+    <Folder Include="API\_Internal\" />
+    <Folder Include="API\_Internal\CommandHandlers\" />
+    <Folder Include="API\_Internal\RequestHandlers\" />
+    <Folder Include="API\Notifications\" />
+    <Folder Include="Services\Tests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="MailKit" Version="2.15.0" />
+    <PackageReference Include="NETCore.MailKit" Version="2.0.3" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Hangfire" Version="1.7.25" />
+    <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetConnMon.Domain\NetConnMon.Domain.csproj" />
+    <ProjectReference Include="..\NetConnMon.Persistence\NetConnMon.Persistence.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="DataAccess\DataInterfaces.cs" />
+    <Compile Remove="DataAccess\DataInterfaces.cs" />
+  </ItemGroup>
+</Project>

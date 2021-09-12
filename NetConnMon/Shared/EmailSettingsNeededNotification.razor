@@ -1,0 +1,23 @@
+﻿
+@using NetConnMon.Domain.Entities
+@using NetConnMon.Server.API.Requests;
+@using System.Linq
+
+@inject IMediator mediator
+
+@if (model?.IsNotSet ?? false)
+{
+    <MudAlert Severity="Severity.Normal">
+        Don't forget to configure email if you want alerts.
+        <MudButton Link="/email" StartIcon="@Icons.Material.Filled.Email" Size="Size.Small"
+                   Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto">Configure Email</MudButton>
+    </MudAlert>
+}
+@code {
+    private EmailSettings model = DataExtensions.DefaultEmailSettingsValues();
+    protected override async Task OnInitializedAsync()
+    {
+        StateHasChanged();
+        model = (await mediator.Send(new GetEmailSettingsList()))?.FirstOrDefault() ?? null;
+    }
+}

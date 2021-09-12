@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>aspnet-NetConnMon-F3623C28-E274-4E6B-B6E1-7219CA819AE3</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'NetConnMon' " />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.9" />
+    <PackageReference Include="MudBlazor" Version="5.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Blazored.FluentValidation" />
+    <None Remove="Microsoft.EntityFrameworkCore.Design" />
+    <None Remove="Components\" />
+    <None Remove="MediatR.Extensions.Microsoft.DependencyInjection" />
+    <None Remove="MediatR" />
+    <None Remove="MudBlazor.ThemeManager" />
+    <None Remove="Areas\Identity\Pages\Shared\" />
+    <None Remove="Features\" />
+    <None Remove="Features\Test\" />
+    <None Remove="Features\Tests\" />
+    <None Remove="Features\TestHistory\" />
+    <None Remove="Features\EmailSetup\" />
+    <None Remove="Components\Form\" />
+    <None Remove="Theme\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Components\" />
+    <Folder Include="Areas\Identity\Pages\Shared\" />
+    <Folder Include="Features\" />
+    <Folder Include="Features\Test\" />
+    <Folder Include="Features\Tests\" />
+    <Folder Include="Features\TestHistory\" />
+    <Folder Include="Features\EmailSetup\" />
+    <Folder Include="Theme\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetConnMon.Domain\NetConnMon.Domain.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\NetConnMon.Server\NetConnMon.Server.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Shared\Index.cshtml.cs" />
+    <Compile Remove="Components\EntityForm\EntityForm.cs" />
+    <Compile Remove="Components\RazorTagHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Shared\Index.cshtml" />
+    <Content Remove="Components\Form\Form.cshtml" />
+  </ItemGroup>
+</Project>

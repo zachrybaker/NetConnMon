@@ -1,0 +1,34 @@
+﻿@page "/page/{Testid:int}/history"
+
+@inject NavigationManager NavManager
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+@inject IMediator mediator
+@inject IJSRuntime jsRuntime
+
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16">
+    <MudText Typo="Typo.h3" GutterBottom="true">History of
+        @((MarkupString)(@model.Protocol.ToString() + " " + @model.TestName))
+    (Coming soon)
+    </MudText>
+    <p>When we're ready, here's what we're gonna see.</p>
+    <p>The view will set itself up as a Mediatr subscriber to events as they change, nearly in real time. We'll update the view here.</p>
+    <p>Should be purdy cool.</p>
+    <p>Especially if we get around to creating some sorta cool visualization, that is animated or something.</p>
+</MudContainer>
+
+
+@code {
+
+    [Parameter]
+    public int? TestId { get; set; }
+    private TestDefinition model = new TestDefinition
+    {
+        Address = "",
+        CheckIntervalSec = 2,
+        ShouldEmailStatus = true,
+        ConsequtiveErrorsBeforeDisconnected = 3
+    };
+}

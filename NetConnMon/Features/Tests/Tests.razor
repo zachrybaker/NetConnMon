@@ -1,0 +1,22 @@
+﻿@page "/"
+@page "/tests"
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16">
+    <MudText Typo="Typo.h3" GutterBottom="true">Tests</MudText>
+
+    <EmailSettingsNeededNotification />
+
+    <TestTable/>
+
+    <MudButton Link="/test/create"
+               Variant="Variant.Filled"
+               EndIcon="@Icons.Material.Filled.Add"
+               Color="Color.Primary">
+        Add Network Test
+    </MudButton>
+</MudContainer>
+
+
+@code {
+    
+}

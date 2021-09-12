@@ -1,0 +1,90 @@
+﻿
+@using System.Linq;
+@using MimeKit.Text
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmitAsync">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardContent>
+            <MudTextField Label="Sender name" Class="mt-3"
+                          TextChanged="onChangeName"
+                          @bind-Value="model.SenderName" For="@(() => model.SenderName)" />
+            <MudTextField Label="Sender email" Class="mt-3"
+                          InputMode="InputMode.email" InputType="InputType.Email"
+                          TextChanged="onChangeEmail"
+                          @bind-Value="model.SenderEmail" For="@(() => model.SenderEmail)" />
+            <MudTextField Label="Recipient name" Class="mt-3"
+                          TextChanged="onChangeName"
+                          @bind-Value="@model.RecipientName" For="@(() => model.RecipientName)" />
+            <MudTextField Label="Recipient email" Class="mt-3"
+                          InputMode="InputMode.email" InputType="InputType.Email"
+                          TextChanged="onChangeEmail"
+                          @bind-Value="@model.RecipientEmail" For="@(() => model.RecipientEmail)" />
+
+            <MudTextField Label="SMTP Hostname" Class="mt-3"
+                          @bind-Value="@model.SmtpHost" For="@(() => model.SmtpHost)" />
+            <MudNumericField Label="SMTP Port" Class="mt-3"
+                             @bind-Value="@model.Port" For="@(() => model.Port)" />
+
+            <MudSwitch Label="Use SSL" Class="mt-3"
+                       @bind-Checked="@model.UseSSL" Color="Color.Primary" />
+            <MudTextField Label="SMTP Username" Class="mt-3"
+                          @bind-Value="@model.SMTPUsername" For="@(() => model.SMTPUsername)" />
+            <MudTextField Label="SMTP Password" Class="mt-3"
+                          InputType="InputType.Password"
+                          @bind-Value="@model.SMTPPassword" For="@(() => model.SMTPPassword)" />
+
+            <MudSelect Label="Text Format" Class="mt-3"
+                       @bind-Value="@model.TextFormat" For="@(() => model.TextFormat)">
+                @foreach (TextFormat textFormat in Enum.GetValues(typeof(TextFormat)))
+                {
+                    <MudSelectItem T="TextFormat" Value="@textFormat">@textFormat.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton @onclick="(() => sendOnSave = false)" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto"
+                       EndIcon="@Icons.Material.Filled.Save">Save</MudButton>
+            <MudButton @onclick="(() => sendOnSave = true)" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto"
+                       EndIcon="@Icons.Material.Filled.Save">Save &amp; Send Test Email</MudButton>
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+    [Parameter]
+    public EmailSettings model { get; set; }
+
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+    [Parameter]
+    public EventCallback OnSendTestEmail { get; set; }
+    private bool creating => !(model?.Id > 0);
+    private string saveIcon => creating ? Icons.Material.Filled.Create : Icons.Material.Filled.Update;
+
+    protected void onChangeName(string change)
+    {
+        if (!string.IsNullOrEmpty(change) && string.IsNullOrEmpty(model.RecipientName))
+            model.RecipientName = change;
+        if (!string.IsNullOrEmpty(model.RecipientName) && string.IsNullOrEmpty(model.SenderName))
+            model.SenderName = change;
+    }
+    protected void onChangeEmail(string change)
+    {
+        if (!string.IsNullOrEmpty(change) && string.IsNullOrEmpty(model.RecipientEmail))
+            model.RecipientEmail = change;
+        if (!string.IsNullOrEmpty(change) && string.IsNullOrEmpty(model.SenderEmail))
+            model.SenderEmail = change;
+    }
+    private bool sendOnSave = false;
+    private async Task OnValidSubmitAsync(EditContext context)
+    {
+        if (sendOnSave)
+            await OnSendTestEmail.InvokeAsync();
+        else
+            await OnValidSubmit.InvokeAsync();
+
+    }
+}

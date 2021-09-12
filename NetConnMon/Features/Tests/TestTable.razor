@@ -1,0 +1,99 @@
+﻿
+@inject IMediator mediator
+
+<Loading IsLoading="loading">
+    <MudTable Items="@tests" Dense="@true" Hover="@true" Bordered="@true" Striped="@false"
+              Filter="new Func<TestDefinition,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Test Definitions</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Protocol</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Last Updated</MudTh>
+            <MudTh>Last Errored</MudTh>
+            <MudTh>Running Since</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Protocol">@context.Protocol</MudTd>
+            <MudTd DataLabel="Name">@context.TestName</MudTd>
+            <MudTd DataLabel="Status">
+                @context.StatusText() @(context.DownSince?.ToString() ?? context.UpSince?.ToString() ?? "")
+                @if (context.Disabled)
+                {
+                    <MudChip Icon="@Icons.Material.Filled.DisabledVisible" Disabled="true" Color="Color.Error">Disabled</MudChip>}
+                @if (context.RunningWithErrors().IsTrue())
+                {
+                    <MudChip Icon="@Icons.Material.Filled.RunningWithErrors" Disabled="true" Color="Color.Error">Errors</MudChip>
+                }
+            </MudTd>
+            <MudTd DataLabel="Last Updated">@context.LastUpdated.ToString()</MudTd>
+            <MudTd DataLabel="Last Errored">@context.LastErrored?.ToString()</MudTd>
+            <MudTd DataLabel="Running Since">@context.RunningSince?.ToString()</MudTd>
+            <MudTd>
+                @if (context.Disabled)
+                {
+                    <MudFab Color="Color.Success" Icon="@Icons.Material.Filled.NotStarted" aria-label="disable" OnClick="@(() => DisableTest(context.Id))"
+                            Size="Size.Small" IconSize="Size.Small" Class="ma-2" />
+                }
+                else
+                {
+                    <MudFab Color="Color.Error" Icon="@Icons.Material.Filled.Stop" aria-label="enable" OnClick="@(() => DisableTest(context.Id))"
+                            Size="Size.Small" IconSize="Size.Small" Class="ma-2" />
+                }
+
+                <MudFab Color="Color.Secondary" Icon="@Icons.Material.Filled.Edit" aria-label="edit" Link="@("/test/" + context.Id)"
+                        Size="Size.Small" IconSize="Size.Small" Class="ma-2" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</Loading>
+
+
+@code {
+    private List<TestDefinition> tests = new List<TestDefinition>();
+    private bool loading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true;
+        StateHasChanged();
+        tests = await mediator.Send(new GetTestDefinitionList());
+        loading = false;
+    }
+    private string searchString1 = "";
+    private TestDefinition selectedItem1 = null;
+    private bool FilterFunc1(TestDefinition element) => FilterFunc(element, searchString1);
+    private bool FilterFunc(TestDefinition element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.LastErrorMsg?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            return true;
+        if (element.Address.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Messages?.Any(x => x.Contains(searchString, StringComparison.OrdinalIgnoreCase)) ?? false)
+            return true;
+        return false;
+    }
+
+    protected async Task DisableTest(int id)
+    {
+        var test = tests.FirstOrDefault(x => x.Id == id);
+        test.Disabled = !test.Disabled;
+        loading = true;
+        StateHasChanged();
+        await mediator.Send(new SaveTestDefinition(test));
+        loading = false;
+    }
+}

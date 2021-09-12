@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.9"><IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+<PrivateAssets>all</PrivateAssets>
+</PackageReference>
+   
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.9" />
+    <PackageReference Include="Zack.EFCore.Batch.Sqlite" Version="1.4.8" />
+    <PackageReference Include="Zack.EFCore.Batch" Version="1.4.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="DBContexts\" />
+    <None Remove="Microsoft.Extensions.Configuration" />
+    <None Remove="Microsoft.Extensions.Identity.Stores" />
+    <None Remove="Contracts\" />
+    <None Remove="Repos\" />
+    <None Remove="Contracts\Spec\" />
+    <None Remove="Contracts\Specs\Internal\" />
+    <None Remove="Scrutor" />
+    <None Remove="EFCore.BulkExtensions" />
+    <None Remove="Microsoft.EntityFrameworkCore.Relational" />
+    <None Remove="Zack.EFCore.Batch.Sqlite" />
+    <None Remove="Zack.EFCore.Batch" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DBContexts\" />
+    <Folder Include="Contracts\" />
+    <Folder Include="Repos\" />
+    <Folder Include="Contracts\Specs\" />
+    <Folder Include="Contracts\Specs\Internal\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetConnMon.Domain\NetConnMon.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="OldRemove\ContextExtensions.cs" />
+    <Compile Remove="OldRemove\ITestDBContext.cs" />
+  </ItemGroup>
+</Project>

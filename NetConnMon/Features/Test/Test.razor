@@ -1,0 +1,60 @@
+﻿@page "/test/{Testid:int}"
+@page "/test/create"
+
+@inject IMediator mediator
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16">
+    <MudText Typo="Typo.h3" GutterBottom="true">
+        @((MarkupString)(creating ? "Create New Network Test": "Editing " + @model.TestName))
+    </MudText>
+
+    <Loading IsLoading="loading">
+            <TestSettingsForm model="@model" OnDeleteConfirmed="@Delete" OnValidSubmit="Save" />
+    </Loading>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int? TestId { get; set; }
+    private TestDefinition model = DataExtensions.DefaultTestDefinitionValues();
+    private bool loading = true;
+    private bool creating => !(model?.Id > 0);
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = false;
+        if (TestId.HasValue && TestId.Value > 0 && TestId.Value != model?.Id)
+        {
+            loading = true;
+            StateHasChanged();
+            model = await mediator.Send(new GetTestDefinition(TestId.Value));
+            loading = false;
+        }
+    }
+    private async Task Save()
+    {
+        loading = true;
+        var sid = Snackbar.Add("Saving...", Severity.Info, (options) =>
+        {
+            options.CloseAfterNavigation = true;
+        });
+        StateHasChanged();
+        await mediator.Send(new SaveTestDefinition(model));
+
+        loading = false;
+        NavManager.NavigateTo($"/tests");
+    }
+    private async Task Delete()
+    {
+        loading = true;
+        var sid = Snackbar.Add("Deleting...", Severity.Error, (options) =>
+        {
+            options.CloseAfterNavigation = true;
+        });
+        StateHasChanged();
+        await mediator.Send(new DeleteTestDefinition(model));
+        loading = false;
+        NavManager.NavigateTo($"/tests");
+    }
+}

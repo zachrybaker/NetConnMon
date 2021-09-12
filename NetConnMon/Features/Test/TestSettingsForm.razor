@@ -1,0 +1,112 @@
+﻿
+@inject IDialogService DialogService
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmitClick">
+        <DataAnnotationsValidator />
+        <MudCard>
+            <MudCardContent>
+                <MudSwitch Label="Disable this test" Class="mt-3"
+                           @bind-Checked="@model.Disabled" Color="@DisableColorClass" />
+                <MudTextField Label="First name"
+                              @bind-Value="model.TestName" For="@(() => model.TestName)" />
+                <MudSelect Label="Protocol" Class="mt-3" @onchange="OnSwitchProtocol" Disabled="@(model.Id > 0)"
+                           @bind-Value="model.Protocol" For="@(() => model.Protocol)">
+                    @foreach (NetProtocol protocol in Enum.GetValues(typeof(NetProtocol)))
+                    {
+                        <MudSelectItem T="NetProtocol" Value="@protocol">@protocol.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudTextField Label="Timeout (MilliSec)" Class="mt-3" HelperText="Timeout, in milliseconds"
+                              @bind-Value="model.TimeoutMSec" For="@(() => model.TimeoutMSec)" />
+                <MudTextField Label="Address" HelperText="Ip Address / Hostname" Class="mt-3"
+                              @bind-Value="model.Address" For="@(() => model.Address)" />
+                @* Driven by the protocol chosen....
+        <MudNumericField Label="Port" Class="mt-3" @bind-Value="model.Port" For="@(() => model.Port)" />*@
+                <MudNumericField Label="Check Interval (Sec)" Class="mt-3" @bind-Value="model.CheckIntervalSec"
+                                 For="@(() => model.CheckIntervalSec)" HelperText="Seconds to wait between checks" />
+                <MudNumericField Label="Consecutive errors before considered disconnected" Class="mt-3"
+                                 @bind-Value="model.ConsequtiveErrorsBeforeDisconnected"
+                                 For="@(() => model.ConsequtiveErrorsBeforeDisconnected)" HelperText="(Resets when reconnected)" />
+                <MudNumericField Label="Consecutive tests before saving" Class="mt-3"
+                                 @bind-Value="model.SaveInterval" For="@(() => model.SaveInterval)" />
+
+
+                <MudSwitch Label="Should Email Status" Class="mt-3"
+                           @bind-Checked="@model.ShouldEmailStatus" Color="Color.Primary" @onchange="OnToggleTimingOptions" />
+                @if (model.ShouldEmailStatus)
+                {
+                    <MudPaper Class="pa-4 ml-4">
+                        <MudText Typo="Typo.subtitle2">Email Timings</MudText>
+
+                        <MudNumericField Label="Min Interruption (Sec)" Class="mt-3" HelperText="Seconds between connection going down and first email."
+                                         @bind-Value="model.MinInterruptionSec" For="@(() => model.MinInterruptionSec)" />
+                        <MudNumericField Label="Backoff Min (Sec)" Class="mt-3" HelperText="Seconds before next email."
+                                         @bind-Value="model.BackoffMinSec" For="@(() => model.BackoffMinSec)" />
+                        <MudNumericField Label="Backoff Max (Sec)" Class="mt-3" HelperText="Seconds before next email (max)."
+                                         @bind-Value="model.BackoffMaxSec" For="@(() => model.BackoffMaxSec)" />
+                        <MudNumericField Label="Backoff Step (Sec)" Class="mt-3" HelperText="Seconds before next email (step)."
+                                         @bind-Value="model.BackoffStepSec" For="@(() => model.BackoffStepSec)" />
+
+                    </MudPaper>
+                }
+            </MudCardContent>
+            <MudCardActions>
+
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Error"
+                           OnClick="@DeleteModelClicked" Class="ml-auto">Delete</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" IconClass="@saveIcon" Class="ml-auto">Save</MudButton>
+            </MudCardActions>
+        </MudCard>
+
+    </EditForm>
+    @code
+{
+        [Parameter]
+        public TestDefinition model { get; set; } = new TestDefinition();
+        [Parameter]
+        public EventCallback OnDeleteConfirmed { get; set; }
+        [Parameter]
+        public EventCallback OnValidSubmit { get; set; }
+        private Color DisableColorClass => (model?.Disabled ?? false) ? Color.Error : Color.Primary;
+        private string saveIcon => creating ? Icons.Material.Filled.Create : Icons.Material.Filled.Update;
+        private bool creating => !(model?.Id > 0);
+
+
+        private void OnToggleTimingOptions()
+        {
+            StateHasChanged();
+        }
+        protected void OnSwitchProtocol(ChangeEventArgs changeEventArgs)
+        {
+            if (string.IsNullOrEmpty(model.TestName))
+                model.TestName = model.Protocol switch
+                {
+                    NetProtocol.ICMP => "Ping",
+                    NetProtocol.TCP => "Http Get",
+                    NetProtocol.UDP => "UDP Test",
+                    _ => "???"
+                };
+        }
+        private bool deleteWasClicked = false;
+        private async Task DeleteModelClicked(MouseEventArgs mouseEventArgs)
+        {
+            deleteWasClicked = true;
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", "Do you really want to delete this test? This process cannot be undone.");
+            parameters.Add("ButtonText", "Delete");
+            parameters.Add("Color", Color.Error);
+            var dialog = DialogService.Show<ConfirmDialog>("Delete", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+                await OnDeleteConfirmed.InvokeAsync();
+        }
+        private async Task OnValidSubmitClick(EditContext context)
+        {
+            if (deleteWasClicked)
+                deleteWasClicked = false;
+            else
+                await OnValidSubmit.InvokeAsync();
+        }
+    }

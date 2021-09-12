@@ -1,0 +1,75 @@
+﻿@page "/email"
+@page "/emailsetup"
+
+@inject IMediator mediator
+
+@inject NavigationManager NavManager
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16">
+    <MudText Typo="Typo.h3" GutterBottom="true">Email Settings</MudText>
+
+    <Loading IsLoading="loading">
+        <EmailSettingsForm model="model" OnValidSubmit="Save" OnSendTestEmail="SaveAndSendEmail" />
+    </Loading>
+</MudContainer>
+@code
+{
+    private EmailSettings model = DataExtensions.DefaultEmailSettingsValues();
+    private bool loading = true;
+    protected override async Task OnParametersSetAsync()
+    {
+        if (model?.Id > 0)
+            return;
+        loading = true;
+        StateHasChanged();
+        model = (await mediator.Send(new GetEmailSettingsList()))?.FirstOrDefault() ?? model;
+        loading = false;
+    }
+    private async Task SaveAndSendEmail()
+    {
+        loading = true;
+        var sid = Snackbar.Add("Saving...", Severity.Info, (options) =>
+        {
+            options.CloseAfterNavigation = true;
+        });
+        StateHasChanged();
+
+        await mediator.Send(new SaveEmailSettings(model));
+        var sid2 = Snackbar.Add("Sending test email...", Severity.Info, (options) =>
+        {
+            options.CloseAfterNavigation = true;
+        });
+        StateHasChanged();
+        // Note, better would be to send a message to save and test in one swoop. TODO
+        var errorMessage = await mediator.Send(new SendTestEmailRequest());
+        loading = false;
+
+        StateHasChanged();
+        if (errorMessage == null)
+        {
+            Snackbar.Add("Sent...", Severity.Info);
+            NavManager.NavigateTo($"/tests");
+        }
+        else
+            Snackbar.Add($"Failure: {errorMessage}", Severity.Error, (options) =>
+            {
+                options.CloseAfterNavigation = true;
+            });
+
+    }
+    private async Task Save()
+    {
+        loading = true;
+        var sid = Snackbar.Add("Saving...", Severity.Info, (options) =>
+        {
+            options.CloseAfterNavigation = true;
+        });
+        StateHasChanged();
+
+        await mediator.Send(new SaveEmailSettings(model));
+        loading = false;
+        NavManager.NavigateTo($"/tests");
+    }
+}
