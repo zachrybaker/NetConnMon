@@ -19,7 +19,6 @@ They get recreated on next start if they are somehow deleted.
 When the app is up, pull up the browser at port 80/443 and configure your tests!
 
 ## Coming soon:
-* create test from protocol selection on list view.
 * track email send error state in app (but not across app starts)
 * Make the UI app a wasm not just a server-side app, by wrapping the server Api with a Rest Api ala https://github.com/mumby0168/blog-samples/tree/main/new-features/MinimalApis / https://github.com/jbogard/MediatR/issues/653
 * finish authentication/authorization
