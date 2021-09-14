@@ -15,13 +15,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\" />
-    <Folder Include="Logic\" />
     <Folder Include="Enums\" />
     <Folder Include="Specs\" />
     <Folder Include="Specs\Internal\" />
     <Folder Include="Base\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MimeKit" Version="2.15.0" />
+    <PackageReference Include="FluentValidation" Version="10.3.3" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+    <PackageReference Include="MimeKit" Version="2.15.1" />
   </ItemGroup>
 </Project>

@@ -11,14 +11,10 @@ using Microsoft.Extensions.Hosting;
 using NetConnMon.Areas.Identity;
 using MudBlazor.Services;
 using Microsoft.AspNetCore.Identity;
+
 //using NetConnMon.Api; // coming soon
 using NetConnMon.Server; // going soon (from here anyway)
 using MediatR;
-// TODO: move identity-related features to mudblazor UI
-// TODO: Add authentication by putthing it in the root layout
-// TODO:? WASM, with API by swaping use of server API on this side (_Imports.razor) with our own here,
-//    with the requests/commands moved to domain project (for reuse by both apps)
-//    and the client-side handlers implemented via mediator with [refit](https://jonhilton.net/blazor-refit/)
 
 namespace NetConnMon
 {
@@ -34,7 +30,6 @@ namespace NetConnMon
                 .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true);
          
             services.ConfigureNetConnMonServer(Configuration, IdentityBuilder);
-
 
             services.AddRazorPages();
             services.AddServerSideBlazor();

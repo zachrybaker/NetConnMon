@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using NetConnMon.Domain.Logic;
 using NetConnMon.Persistence.DBContexts;
 
 namespace NetConnMon.Persistence
@@ -18,7 +19,7 @@ namespace NetConnMon.Persistence
 
             var dbContextBuilder = new DbContextOptionsBuilder<TestDbContext>();
             dbContextBuilder.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
-            return new TestDbContext(dbContextBuilder.Options);
+            return new TestDbContext(dbContextBuilder.Options, new Encryptor(Encryptor.CreateNewEncryptionSettings()));
         }
     }
 }

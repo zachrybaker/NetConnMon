@@ -1,5 +1,6 @@
 ﻿using System;
 using MimeKit.Text;
+using NetConnMon.Domain.Logic;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,8 +18,13 @@ namespace NetConnMon.Domain.Entities
         public bool UseSSL { get; set; } = true;
         [StringLength(50, MinimumLength = 0)]
         public string SMTPUsername { get; set; }
+
+        //string _smtpPassword;
         [StringLength(512, MinimumLength = 0)]
+        [Encrypted]
+        //[Encrypted(nameof(_smtpPassword))]
         public string SMTPPassword { get; set; }
+
         [Required]
         [StringLength(50)]
         public string SenderName { get; set; }

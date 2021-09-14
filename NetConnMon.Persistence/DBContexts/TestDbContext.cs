@@ -4,13 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NetConnMon.Domain.Entities;
+using NetConnMon.Domain.Logic;
 
 namespace NetConnMon.Persistence.DBContexts
 {
     public class TestDbContext : DbContext
     {
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options) {}
+        IEncryptor encryptor;
+        public TestDbContext(DbContextOptions<TestDbContext> options, IEncryptor encryptor)
+            : base(options) { this.encryptor = encryptor; }
          
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,7 +23,14 @@ namespace NetConnMon.Persistence.DBContexts
 
             modelBuilder.Entity<UpDownEvent>();
             modelBuilder.Entity<EmailSettings>();
-            //modelBuilder.RegisterUdfDefintions();
+            
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+                foreach (var property in entityType.GetProperties())
+                {
+                    var attributes = property.PropertyInfo.GetCustomAttributes(typeof(EncryptedAttribute), false);
+                    if (attributes.Any())
+                        property.SetValueConverter(new EncryptedValueConverter(encryptor));
+                }
         }
 
 

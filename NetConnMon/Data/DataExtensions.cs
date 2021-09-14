@@ -59,5 +59,13 @@ namespace NetConnMon.Data
                 ConsequtiveErrorsBeforeDisconnected = 3
             };
         
-    }
+        public static string DefaultTestNamePerPort(this TestDefinition model)
+            => model.Protocol switch
+                {
+                    NetProtocol.ICMP => $"Ping",
+                    NetProtocol.TCP => "Http Get",
+                    NetProtocol.UDP => "UDP Test",
+                    _ => "???"
+                };
+}
 }

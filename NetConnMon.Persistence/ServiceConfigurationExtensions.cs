@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NetConnMon.Domain.Configuration;
 using NetConnMon.Persistence.DBContexts;
 using NetConnMon.Persistence.Repos;
 using System.IO;
+
 
 namespace NetConnMon.Persistence
 {
@@ -19,14 +21,10 @@ namespace NetConnMon.Persistence
         {
             CopyDbFileToVolumeMount();
 
+            // TODO: ONCE we can support settign up the schema for other databases, support them here.
             services
-                .AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlite(
-                        configuration.GetConnectionString("DefaultConnection")))
-
-                .AddDbContext<TestDbContext>(options =>
-                    options
-                    .UseSqlite(configuration.GetConnectionString("DefaultConnection"))
+                .AddDbContext<ApplicationDbContext>(options => options.UseSqlite(configuration.GetConnectionString("DefaultConnection")))
+                .AddDbContext<TestDbContext       >(options => options.UseSqlite(configuration.GetConnectionString("DefaultConnection"))
                     .UseBatchEF_Sqlite());
             identityBuilder
                 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -41,18 +39,16 @@ namespace NetConnMon.Persistence
             return services;
         }
 
-        private static string dbFilename = "app.db";
-        private static string dockerDBVolumnePath = "netconnmon-db";
         private static void CopyDbFileToVolumeMount()
         {
-            var dest = Path.Combine(dockerDBVolumnePath, dbFilename);
+            var dest = Path.Combine(Config.dockerDBVolumnePath, Config.dbFilename);
             // We should already be in "app"
-            if (!Directory.Exists(dockerDBVolumnePath))
-                throw new NullReferenceException($"Must configure app to start in docker with the moun volume \"{dockerDBVolumnePath}\" specified");
-            else if (!File.Exists(dbFilename))
-                throw new NullReferenceException($"{dbFilename} is missing from executable directory.  Path is {Directory.GetCurrentDirectory()}");
+            if (!Directory.Exists(Config.dockerDBVolumnePath))
+                throw new NullReferenceException($"Must configure app to start in docker with the moun volume \"{Config.dockerDBVolumnePath}\" specified");
+            else if (!File.Exists(Config.dbFilename))
+                throw new NullReferenceException($"{Config.dbFilename} is missing from executable directory.  Path is {Directory.GetCurrentDirectory()}");
             else if (!File.Exists(dest))
-                File.Copy(dbFilename, dest);
+                File.Copy(Config.dbFilename, dest);
         }
     }
 }
