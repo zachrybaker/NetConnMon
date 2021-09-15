@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 //using NetConnMon.Api; // coming soon
 using NetConnMon.Server; // going soon (from here anyway)
 using MediatR;
+using NetConnMon.Domain.Configuration;
 
 namespace NetConnMon
 {
@@ -58,8 +59,12 @@ namespace NetConnMon
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
-            app.UseHttpsRedirection();
+
+            if (Configuration.Get<OverridableSettings>()?.EnableHttpsUIRedirect ?? false)
+                app.UseHttpsRedirection();
+            else
+                Console.WriteLine("Not enabling Https Redirection.");
+
             app.UseStaticFiles();
 
             app.UseRouting();

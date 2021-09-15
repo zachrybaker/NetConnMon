@@ -10,5 +10,6 @@ namespace NetConnMon.Domain.Configuration
     {
         public SettingsVersion SettingsVersion { get; set; }
         public EncryptionSettings EncryptionSettings { get; set;  }
+        public bool EnableHttpsUIRedirect { get; set; }
     }
 }

@@ -9,5 +9,6 @@ namespace NetConnMon.Domain.Configuration
     public class SettingsVersion
     {
         public int Version { get; set; }
+        public int Minor { get; set; }
     }
 }
